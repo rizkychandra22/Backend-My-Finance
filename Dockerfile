@@ -12,8 +12,8 @@ RUN mvn clean package -DskipTests
 # Stage 2: Deploy & Jalankan aplikasi di Server WildFly
 FROM quay.io/wildfly/wildfly:26.1.3.Final-jdk17
 
-# Salin file WAR hasil kompilasi dari Stage 1 ke folder deployment WildFly
-COPY --from=build /app/target/my-finance-backend.war /opt/jboss/wildfly/standalone/deployments/
+# Salin file WAR hasil kompilasi dari Stage 1 ke folder deployment WildFly dan ubah namanya menjadi ROOT.war agar berjalan di context path '/'
+COPY --from=build /app/target/my-finance-backend.war /opt/jboss/wildfly/standalone/deployments/ROOT.war
 
 # Buka port 8080
 EXPOSE 8080
