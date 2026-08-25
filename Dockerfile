@@ -18,5 +18,8 @@ COPY --from=build /app/target/my-finance-backend.war /opt/jboss/wildfly/standalo
 # Buka port 8080
 EXPOSE 8080
 
-# Jalankan WildFly dengan pembatasan RAM (-Xmx350m) agar muat di RAM Free Tier Cloud (512 MB)
-CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0", "-java-options", "-Xmx350m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=128m"]
+# Konfigurasi opsi JVM (RAM & Metaspace) agar muat di RAM Free Tier Cloud (512 MB)
+ENV JAVA_OPTS="-Xmx350m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=128m -Djava.net.preferIPv4Stack=true"
+
+# Jalankan WildFly dan bind ke 0.0.0.0 agar bisa diakses dari luar container
+CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]
