@@ -137,6 +137,17 @@ public class UserService {
     public boolean resetPassword(String token, String newPassword) {
         MongoCollection<Document> collection = getUserCollection();
 
+        System.out.println("DEBUG RESET: Token yang dicari: '" + token + "'");
+        Document debugUser = collection.find(Filters.eq("resetToken", token)).first();
+        if (debugUser != null) {
+            System.out.println("DEBUG RESET: User ditemukan dengan token (tanpa cek expiry).");
+            Object expiryVal = debugUser.get("resetTokenExpiry");
+            System.out.println("DEBUG RESET: Expiry di DB: " + expiryVal + " (Tipe: " + (expiryVal != null ? expiryVal.getClass().getName() : "null") + ")");
+            System.out.println("DEBUG RESET: Waktu sekarang: " + System.currentTimeMillis());
+        } else {
+            System.out.println("DEBUG RESET: User TIDAK ditemukan dengan token tersebut di database.");
+        }
+
         // Cari user dengan token yang cocok dan masa kadaluwarsa lebih besar dari waktu sekarang
         Bson filter = Filters.and(
                 Filters.eq("resetToken", token),
