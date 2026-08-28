@@ -103,7 +103,7 @@ public class AuthController {
                         .entity("{\"error\": \"Email atau nomor telepon tidak terdaftar!\"}").build();
             }
 
-            return Response.ok("{\"message\": \"Tautan reset password berhasil dibuat! Periksa log konsol server Anda.\"}").build();
+            return Response.ok("{\"message\": \"Tautan reset password berhasil dibuat!\"}").build();
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

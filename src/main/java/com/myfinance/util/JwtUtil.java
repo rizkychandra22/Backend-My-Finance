@@ -3,6 +3,7 @@ package com.myfinance.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
@@ -13,12 +14,21 @@ import java.util.Date;
  */
 public class JwtUtil {
 
-    // Kunci rahasia minimal harus 256-bit (32 karakter/byte) untuk algoritma HS256
-    private static final String SECRET_STRING = "myfinance-super-secret-key-1234567890-must-be-long-enough-32bytes";
-    private static final Key KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
+     // Default secret acak berbasis Base64 yang valid untuk cadangan development
+    private static final String DEFAULT_SECRET = "myfinance-super-secret-key-1234567890-must-be-long-enough-32bytes";
+    private static final String SECRET_STRING = getSecret();
+    private static final Key KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_STRING));
     
     // Masa berlaku token JWT: 24 jam (dalam milidetik)
     private static final long EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
+    private static String getSecret() {
+        String envSecret = System.getenv("JWT_SECRET");
+        if (envSecret != null && envSecret.trim().length() >= 32) {
+            return envSecret;
+        }
+        // Fallback hanya untuk development jika ENV belum disetel
+        return DEFAULT_SECRET;
+    }
 
     /**
      * Membuat token JWT baru berdasarkan identitas user (email/nomor telepon).
