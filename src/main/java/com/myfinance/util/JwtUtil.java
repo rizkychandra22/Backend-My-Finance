@@ -14,11 +14,11 @@ import java.util.Date;
  */
 public class JwtUtil {
 
-     // Default secret acak berbasis Base64 yang valid untuk cadangan development
-    private static final String DEFAULT_SECRET = "myfinance-super-secret-key-1234567890-must-be-long-enough-32bytes";
+    // Default secret acak berbasis Base64 yang valid untuk cadangan development
+    private static final String DEFAULT_SECRET = "bXlmaW5hbmNlLXN1cGVyLXNlY3JldC1rZXktMTIzNDU2Nzg5MC1tdXN0LWJlLWxvbmctZW5vdWdoLTMyYnl0ZXM=";
     private static final String SECRET_STRING = getSecret();
     private static final Key KEY = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_STRING));
-    
+
     // Masa berlaku token JWT: 24 jam (dalam milidetik)
     private static final long EXPIRATION_TIME_MS = 24 * 60 * 60 * 1000;
     private static String getSecret() {
