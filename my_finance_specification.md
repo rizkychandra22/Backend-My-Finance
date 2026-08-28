@@ -31,32 +31,40 @@ Determinan arah arus kas pada sistem backend:
 * **`EXPENSE`**: Transaksi keluar yang memotong saldo rekening asal dan menambah agregat pengeluaran.
 * **`MUTASI`**: Pemindahan saldo antar-rekening internal (misal: BCA ke Seabank atau BCA ke Gopay). **Dinetralkan dari statistik untung-rugi (*Net Cashflow*)** agar tidak merusak laporan keuangan.
 
-### C. Kategori Sumber (`KategoriSumber`)
-Digunakan sebagai penanda konteks utama asal-usul arus dana:
-* **`PERSONAL`**: Transaksi murni urusan pribadi (gaji utama kampus, belanja harian, jajan, kebutuhan rumah tangga).
-* **`FREELANCE`**: Transaksi yang berkaitan dengan pekerjaan sampingan (project web dev, jasa pasang wifi).
-* **`ORGANIZATION`**: Transaksi perputaran dana kelolaan organisasi/komunitas (iuran Cloudinary UKM-LISES, dll.).
+---
 
-### D. Kategori Transaksi Lengkap (`KategoriTransaksi`)
+## 3. Skema Kategori Transaksi (Pemasukan vs Pengeluaran)
 
-#### Kategori Pemasukan (INCOME):
-* **`WORK_SALARY`**: Pemasukan dari hasil kerja/layanan (Gaji Kampus jika KategoriSumber = PERSONAL, Freelance jika KategoriSumber = FREELANCE, Iuran UKM jika KategoriSumber = ORGANIZATION).
-* **`REWARDS`**: Bonus kinerja, THR, insentif, cashback e-wallet & promo.
-* **`ASSET_SALE`**: Hasil penjualan barang bekas/pribadi.
+### A. Transaksi Pemasukan (`INCOME`)
+Menggunakan 2 atribut klasifikasi untuk pencatatan yang presisi:
 
-#### Kategori Pengeluaran (EXPENSE):
-* **`DAILY_EXPENSE`**: Makan, bensin, belanja kebutuhan pokok.
-* **`SUBSCRIPTION`**: Gemini AI Pro, internet, software & tagihan rutin.
-* **`SHOPPING`**: Belanja barang (marketplace online / offline).
-* **`ENTERTAINMENT`**: Hiburan, jajan, rokok, nongkrong, hobi/alat musik.
-* **`HEALTH_CARE`**: Obat-obatan, vitamin, biaya dokter.
-* **`SOCIAL_GIVING`**: Sedekah, infaq, kado, kondangan.
-* **`MAINTENANCE`**: Perawatan/servis global (motor, laptop, HP, gitar, dll.).
-* **`PROJECT_OPERATIONAL`**: Biaya operasional project (domain/hosting).
+1. **Kategori Sumber (`KategoriSumberIncome`)**:
+   * **`WORK_SALARY`**: Pemasukan dari hasil kerja, layanan, proyek, atau gaji rutin.
+   * **`PASSIVE_INCOME`**: Hasil pendapatan pasif/investasi.
+   * **`REWARDS`**: Bonus kinerja, THR, insentif, cashback e-wallet & promo.
+   * **`ASSET_SALE`**: Hasil penjualan barang bekas/pribadi.
+
+2. **Kategori Jenis (`KategoriJenisIncome`)**:
+   * **`PERSONAL`**: Pemasukan murni urusan pribadi (gaji utama kampus, bonus pribadi).
+   * **`FREELANCE`**: Pemasukan dari pekerjaan sampingan (proyek web dev, jasa pasang wifi).
+   * **`ORGANIZATION`**: Pemasukan dari kelolaan organisasi/komunitas (iuran Cloudinary UKM-LISES, dll.).
+
+### B. Transaksi Pengeluaran (`EXPENSE`)
+Murni menggunakan **1 Kategori Sumber** tanpa Kategori Jenis (seluruh pengeluaran bersifat personal/konsumtif):
+
+1. **Kategori Sumber (`KategoriSumberExpense`)**:
+   * **`DAILY_EXPENSE`**: Makan, bensin, belanja kebutuhan harian/pokok.
+   * **`SUBSCRIPTION`**: Gemini AI Pro, internet, software & tagihan rutin.
+   * **`SHOPPING`**: Belanja barang (marketplace online / offline).
+   * **`ENTERTAINMENT`**: Hiburan, jajan, rokok, nongkrong, hobi/alat musik.
+   * **`HEALTH_CARE`**: Obat-obatan, vitamin, biaya dokter.
+   * **`SOCIAL_GIVING`**: Sedekah, infaq, kado, kondangan.
+   * **`MAINTENANCE`**: Perawatan/servis global (motor, laptop, HP, gitar, dll.).
+   * **`OPERATIONAL`**: Biaya operasional proyek/kebutuhan teknis (domain/hosting awal).
 
 ---
 
-## 3. Fitur Utama & Modul Aplikasi
+## 4. Fitur Utama & Modul Aplikasi
 
 ### 1. Modul Strategi Rekening (*3-Bucket Account Strategy*)
 Sistem mengelompokkan rekening ke dalam fungsi spesifik untuk mengontrol alur dana:
@@ -66,11 +74,10 @@ Sistem mengelompokkan rekening ke dalam fungsi spesifik untuk mengontrol alur da
 
 ### 2. Modul Pencatatan Transaksi Smart Engine
 * **Form Input 3-Tab (INCOME, EXPENSE, MUTASI):** Antarmuka responsif dengan `p-inputNumber` bertanda `Rp` dan format titik ribuan otomatis.
-* **Seleksi Rekening Bertingkat (Tipe Rekening & Akun Specifik):**
-  * Pada **INCOME**: Pengguna memilih Tipe Rekening Tujuan (`BANK` / `E_WALLET`), lalu sistem memfilter dropdown akun spesifik yang sesuai (misal: `BANK` -> BCA / Seabank; `E_WALLET` -> Gopay / DANA).
-  * Pada **EXPENSE**: Pengguna memilih Tipe Rekening Asal (`BANK` / `E_WALLET`), lalu memilih akun spesifik penyedia saldo.
-  * Pada **MUTASI**: Pengguna memilih Rekening Asal (Tipe & Akun) serta Rekening Tujuan (Tipe & Akun).
-* **Filtering Kategori Sumber:** Memungkinkan pengguna memilih `PERSONAL`, `FREELANCE`, atau `ORGANIZATION` untuk membedakan konteks porsi pendapatan `WORK_SALARY`.
+* **Struktur Form Dinamis:**
+  * **Tab INCOME:** Menampilkan dropdown *Kategori Sumber*, *Kategori Jenis*, *Tipe Rekening* (`BANK`/`E_WALLET`), dan *Akun Rekening Spesifik*.
+  * **Tab EXPENSE:** Menampilkan dropdown *Kategori Sumber*, *Tipe Rekening* (`BANK`/`E_WALLET`), dan *Akun Rekening Spesifik* (tanpa Kategori Jenis).
+  * **Tab MUTASI:** Menampilkan pasangan *Rekening Asal* (Tipe & Akun) dan *Rekening Tujuan* (Tipe & Akun).
 * **Atomic Balance Update:** Setiap input transaksi menjalankan operasi atomik `$inc` ke MongoDB sehingga saldo rekening diperbarui secara *real-time*.
 
 ### 3. Modul Tabungan (*Dedicated Savings Vault*)
@@ -85,34 +92,42 @@ Visualisasi berbasis **Chart.js** dengan 3 tingkatan analisis:
 
 ---
 
-## 4. Skema Database MongoDB (`my_finance_db`)
+## 5. Skema Database MongoDB (`my_finance_db`)
 
 ### A. Koleksi `rekening`
 Menyimpan entitas rekening fisik dan dompet digital beserta saldo *real-time*:
-* `userId`: Reference ID Pemilik.
-* `namaBank`: Nama Institusi (BCA, Seabank, Bank Jago, Gopay, dll.).
-* `tipeRekening`: Enum `BANK` atau `E_WALLET`.
-* `fungsiKhusus`: Keterangan fungsi (SAVINGS_VAULT, DAILY_OPERATIONAL, BILL_SUBSCRIPTION).
-* `saldoSaatIni`: Nominal angka saldo terkini.
-* `keterangan`: Catatan rinci perbaikan/peran rekening.
+
+```json
+{
+  "_id": ObjectId("65f1a2b3c4d5e6f7a8b9c001"),
+  "userId": "65f1a2b3c4d5e6f7a8b9c000",
+  "namaBank": "BCA",
+  "tipeRekening": "BANK",
+  "fungsiKhusus": "DAILY_OPERATIONAL",
+  "saldoSaatIni": 5000000.0,
+  "keterangan": "Rekening Utama Transaksi Harian"
+}
+```
 
 ### B. Koleksi `transaksi`
-Menyimpan riwayat mutasi pergerakan uang:
-* `userId`: Reference ID Pemilik.
-* `tipeTransaksi`: Enum `INCOME`, `EXPENSE`, atau `MUTASI`.
-* `kategoriSumber`: Enum `PERSONAL`, `FREELANCE`, atau `ORGANIZATION`.
-* `tipeRekeningAsal`: Enum `BANK` / `E_WALLET` (khusus EXPENSE dan MUTASI).
-* `rekeningAsalId`: Reference ID Rekening Sumber (khusus EXPENSE dan MUTASI).
-* `tipeRekeningTujuan`: Enum `BANK` / `E_WALLET` (khusus INCOME dan MUTASI).
-* `rekeningTujuanId`: Reference ID Rekening Tujuan (khusus INCOME dan MUTASI).
-* `nominal`: Besaran nilai transaksi.
-* `kategori`: Enum `KategoriTransaksi` (Null jika tipe MUTASI).
-* `deskripsi`: Catatan rincian transaksi (misal: "DP Web Dev", "Iuran Cloudinary UKM Member A", "Gaji Bulanan Kampus", dll.).
-* `tanggal`: Waktu eksekusi transaksi.
+Menyimpan riwayat mutasi pergerakan uang.
 
----
+```json
+{
+  "_id": ObjectId("65f1a2b3c4d5e6f7a8b9c002"),
+  "userId": "65f1a2b3c4d5e6f7a8b9c000",
+  "tipeTransaksi": "INCOME",
+  "kategoriSumberIncome": "WORK_SALARY",
+  "kategoriJenisIncome": "FREELANCE",
+  "tipeRekeningTujuan": "BANK",
+  "rekeningTujuanId": ObjectId("65f1a2b3c4d5e6f7a8b9c001"),
+  "nominal": 1500000.0,
+  "deskripsi": "Pelunasan Project Web Dev Company Profile",
+  "tanggal": "2026-08-28T10:00:00Z"
+}
+```
 
-## 5. Alur Kerja Logika Sistem (*Workflow Example*)
+## 6. Alur Kerja Logika Sistem (*Workflow Example*)
 
 1. **User Input di Form Angular:**
    * User memilih Tab `INCOME` atau `EXPENSE`.
